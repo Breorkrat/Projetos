@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 
 void u32le(char* output, int integer){
 	output[0] = (char) (integer >> 24 & 0xff);
@@ -57,21 +58,22 @@ int main (){
  	int padding = (4 - (bytesPerRow % 4)) % 4;
 	int fileSize = 54 + 3*(width+padding)*height;
 
+	char header[54];
+	createHeader(header, fileSize, width, height);
+
 	FILE* file = fopen("out.bmp", "w");
 	if (file == NULL) {
 		printf("Erro ao criar imagem");
 		return 1;
 	}
 
-	char header[54];
-	createHeader(header, fileSize, width, height);
 
 	fwrite(header, 54, 1, file);
 	char tempColor[3];
 
 	for (int i = 0; i < height; i++){
 		for (int j = 0; j < width; j++){
-			createColor(j*255/width, 0, i*255/height, tempColor);
+			createColor(i*255/width, 0, j*255/height, tempColor);
 			fwrite(tempColor, sizeof(tempColor), 1, file);
 		}
 		fwrite("\0", 1, padding, file);
